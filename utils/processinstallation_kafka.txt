@@ -1,0 +1,66 @@
+Pré requis à l'installation de Kafka
+A savoir, Kafka peut se plugger sur un zookeeper existant ou utiliser sa propre instance de zookeeper
+
+Installation Java JDK 1.8 sous /usr/java/
+
+Récupération des tarball Hortonworks
+http://public-repo-1.hortonworks.com/HDP/centos7/2.x/updates/2.6.2.0/HDP-2.6.2.0-centos7-rpm.tar.gz
+http://public-repo-1.hortonworks.com/HDP-UTILS-1.1.0.21/repos/centos7/HDP-UTILS-1.1.0.21-centos7.tar.gz
+
+Une fois récupéré, les détarés
+tar -xzvf HDP-2.6.2.0-centos7-rpm.tar.gz -C /var/www/html/hdp/.
+tar -xzvf HDP-UTILS-1.1.0.21-centos7.tar.gz -C /var/www/html/hdp/.
+
+Copier le fichier hdp.repo situé dans le dossier détaré de HDP-2.6.2.0-centos7 dans /etc/yum.repos.d/.
+
+Editer le fichier hdp.repo en modifiant les valeurs de baseurl et gpgkey pour popinter sur l'apache local
+Pour exemple :
+#VERSION_NUMBER=2.6.4.0-91
+[HDP-2.6.4.0]
+name=HDP Version - HDP-2.6.4.0
+baseurl=http://55.15.0.88/hdp/HDP/centos7/2.6.4.0-91
+gpgcheck=1
+gpgkey=http://55.15.0.88/hdp/HDP/centos7/2.6.4.0-91/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins
+enabled=1
+priority=1
+
+[HDP-UTILS-1.1.0.21]
+name=HDP-UTILS Version - HDP-UTILS-1.1.0.21
+baseurl=http://55.15.0.88/hdp/HDP-UTILS-1.1.0.21
+gpgcheck=1
+gpgkey=http://55.15.0.88/hdp/HDP-UTILS-1.1.0.21/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins
+enabled=1
+priority=1
+
+
+Processus d'installation
+creation du groupe hadoop
+groupadd hadoop
+création de l'utilisateur kafka
+useradd -g hadoop -G wheel kafka
+
+Si plusieurs machines : 
+sous le user kafka :
+utilisation des fonctionnalitées ssh-keygen puis ssh-copy-id pour communiquer entre chaque noeud
+
+En root ou sudoers
+mkdir -p /var/data/kafka
+chown -R kafka:hadoop /var/data/kafka
+sudo echo '1' >> /var/data/kafka/myid
+
+
+su - kafka
+Déclaration export JAVA_HOME sour le .profile ou .bash_profile de l'utilisateur ou /etc/profile.d/java.sh 
+
+sudo yum install kafka
+
+Editer le fichier de configuration situé sous /usr/hdp/current/kafka-broker server.properties 
+broker.id=1
+log.dirs=/var/data/kafka
+zookeeper.connect => adresse du zookeeper
+
+
+sur la machine Kafka
+/usr/hdp/current/kafka-broker/bin/kafka start
+
+So, let's play now with kafka
